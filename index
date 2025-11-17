@@ -1,1 +1,600 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Controle de Equipamentos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: #f5f5f5;
+      color: #333;
+    }
+
+    header {
+      background: #1f2937;
+      color: #fff;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    header span {
+      font-size: 13px;
+      opacity: 0.8;
+    }
+
+    main {
+      padding: 16px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      background: #e5e7eb;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .tab-btn.active {
+      background: #2563eb;
+      color: #fff;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 12px 14px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+
+    .card-title {
+      font-size: 13px;
+      color: #6b7280;
+      margin-bottom: 4px;
+    }
+
+    .card-value {
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .section {
+      display: none;
+      background: #fff;
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      margin-bottom: 16px;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    h2 {
+      margin-top: 0;
+      font-size: 18px;
+      margin-bottom: 12px;
+    }
+
+    form {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px 16px;
+      margin-bottom: 10px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 4px;
+      color: #4b5563;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid #d1d5db;
+      font-size: 14px;
+    }
+
+    button {
+      border: none;
+      border-radius: 6px;
+      padding: 8px 14px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .btn-primary {
+      background: #2563eb;
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 13px;
+    }
+
+    th, td {
+      padding: 6px 8px;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
+    }
+
+    th {
+      background: #f3f4f6;
+      font-weight: 600;
+    }
+
+    .status-disponivel {
+      color: #059669;
+      font-weight: bold;
+      font-size: 12px;
+    }
+
+    .status-emprestado {
+      color: #dc2626;
+      font-weight: bold;
+      font-size: 12px;
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      color: #374151;
+    }
+
+    .flex {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .text-muted {
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    @media (max-width: 600px) {
+      header {
+        align-items: flex-start;
+        gap: 6px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Controle de Equipamentos</h1>
+      <span>Versão inicial • HTML + JS + localStorage</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- Abas -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
+      <button class="tab-btn" data-tab="cadastro-equip">Cadastro de Equipamentos</button>
+      <button class="tab-btn" data-tab="emprestimos">Empréstimos / Devoluções</button>
+      <button class="tab-btn" data-tab="lista">Lista de Equipamentos</button>
+      <button class="tab-btn" data-tab="movimentos">Histórico de Movimentações</button>
+    </div>
+
+    <!-- DASHBOARD -->
+    <section id="dashboard" class="section active">
+      <h2>Resumo</h2>
+      <div class="cards">
+        <div class="card">
+          <div class="card-title">Total de equipamentos</div>
+          <div id="totalEquip" class="card-value">0</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Disponíveis</div>
+          <div id="totalDisp" class="card-value">0</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Emprestados</div>
+          <div id="totalEmp" class="card-value">0</div>
+        </div>
+      </div>
+      <p class="text-muted">
+        Essa é apenas uma visão geral. Use as abas acima para cadastrar equipamentos, registrar empréstimos e ver o histórico.
+      </p>
+    </section>
+
+    <!-- CADASTRO DE EQUIPAMENTOS -->
+    <section id="cadastro-equip" class="section">
+      <h2>Cadastro de Equipamento</h2>
+      <form id="formEquip">
+        <div>
+          <label>Nome do equipamento</label>
+          <input type="text" id="equipNome" required />
+        </div>
+        <div>
+          <label>Número de série / Patrimônio</label>
+          <input type="text" id="equipSerie" required />
+        </div>
+        <div>
+          <label>Categoria</label>
+          <input type="text" id="equipCategoria" placeholder="Notebook, Celular, Ferramenta..." />
+        </div>
+        <div>
+          <label>Local / Setor</label>
+          <input type="text" id="equipLocal" placeholder="TI, Manutenção, Almoxarifado..." />
+        </div>
+        <div class="flex">
+          <button type="submit" class="btn-primary">Salvar equipamento</button>
+          <span class="text-muted">Os dados ficam gravados no seu navegador por enquanto.</span>
+        </div>
+      </form>
+    </section>
+
+    <!-- EMPRÉSTIMOS -->
+    <section id="emprestimos" class="section">
+      <h2>Registrar Empréstimo</h2>
+      <form id="formEmprestimo">
+        <div>
+          <label>Equipamento</label>
+          <select id="empEquip" required></select>
+        </div>
+        <div>
+          <label>Colaborador</label>
+          <input type="text" id="empColab" required />
+        </div>
+        <div>
+          <label>Data de saída</label>
+          <input type="date" id="empDataSaida" />
+        </div>
+        <div>
+          <label>Observação</label>
+          <input type="text" id="empObs" placeholder="Ex: uso em campo, teste, etc." />
+        </div>
+        <div>
+          <button type="submit" class="btn-primary">Registrar empréstimo</button>
+        </div>
+      </form>
+
+      <h3>Equipamentos emprestados</h3>
+      <table id="tabelaEmprestados">
+        <thead>
+          <tr>
+            <th>Equipamento</th>
+            <th>Colaborador</th>
+            <th>Saída</th>
+            <th>Observação</th>
+            <th>Ação</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- LISTA DE EQUIPAMENTOS -->
+    <section id="lista" class="section">
+      <h2>Lista de Equipamentos</h2>
+      <div class="flex">
+        <span class="text-muted">Clique nas abas para outras ações.</span>
+      </div>
+      <table id="tabelaEquip">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Série/Patrimônio</th>
+            <th>Categoria</th>
+            <th>Local</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- HISTÓRICO -->
+    <section id="movimentos" class="section">
+      <h2>Histórico de Movimentações</h2>
+      <table id="tabelaMov">
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Equipamento</th>
+            <th>Colaborador</th>
+            <th>Tipo</th>
+            <th>Observação</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+  </main>
+
+  <script>
+    // ------- DADOS EM MEMÓRIA / LOCALSTORAGE -------
+    let equipamentos = [];
+    let movimentacoes = [];
+
+    function carregarDados() {
+      const eq = localStorage.getItem("equipamentos");
+      const mv = localStorage.getItem("movimentacoes");
+      equipamentos = eq ? JSON.parse(eq) : [];
+      movimentacoes = mv ? JSON.parse(mv) : [];
+    }
+
+    function salvarDados() {
+      localStorage.setItem("equipamentos", JSON.stringify(equipamentos));
+      localStorage.setItem("movimentacoes", JSON.stringify(movimentacoes));
+    }
+
+    // ------- UI / RENDERIZAÇÃO -------
+    function atualizarDashboard() {
+      const total = equipamentos.length;
+      const disponiveis = equipamentos.filter(e => e.status === "disponivel").length;
+      const emprestados = equipamentos.filter(e => e.status === "emprestado").length;
+
+      document.getElementById("totalEquip").textContent = total;
+      document.getElementById("totalDisp").textContent = disponiveis;
+      document.getElementById("totalEmp").textContent = emprestados;
+    }
+
+    function renderTabelaEquip() {
+      const tbody = document.querySelector("#tabelaEquip tbody");
+      tbody.innerHTML = "";
+      equipamentos.forEach(e => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${e.nome}</td>
+          <td>${e.serie}</td>
+          <td>${e.categoria || "-"}</td>
+          <td>${e.local || "-"}</td>
+          <td>
+            <span class="${e.status === "disponivel" ? "status-disponivel" : "status-emprestado"}">
+              ${e.status === "disponivel" ? "Disponível" : "Emprestado"}
+            </span>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderSelectEquipDisponivel() {
+      const select = document.getElementById("empEquip");
+      select.innerHTML = "";
+      const disponiveis = equipamentos.filter(e => e.status === "disponivel");
+      if (disponiveis.length === 0) {
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = "Nenhum equipamento disponível";
+        select.appendChild(opt);
+        select.disabled = true;
+      } else {
+        select.disabled = false;
+        const optVazio = document.createElement("option");
+        optVazio.value = "";
+        optVazio.textContent = "Selecione...";
+        select.appendChild(optVazio);
+        disponiveis.forEach(e => {
+          const opt = document.createElement("option");
+          opt.value = e.id;
+          opt.textContent = `${e.nome} (${e.serie})`;
+          select.appendChild(opt);
+        });
+      }
+    }
+
+    function renderTabelaEmprestados() {
+      const tbody = document.querySelector("#tabelaEmprestados tbody");
+      tbody.innerHTML = "";
+
+      movimentacoes
+        .filter(m => m.tipo === "emprestimo" && !m.dataDevolucao)
+        .forEach(m => {
+          const equip = equipamentos.find(e => e.id === m.equipId);
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${equip ? equip.nome : "-"}</td>
+            <td>${m.colaborador}</td>
+            <td>${m.dataSaida || "-"}</td>
+            <td>${m.obs || "-"}</td>
+            <td>
+              <button class="btn-secondary" onclick="registrarDevolucao('${m.id}')">Devolver</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+    }
+
+    function renderTabelaMovimentacoes() {
+      const tbody = document.querySelector("#tabelaMov tbody");
+      tbody.innerHTML = "";
+      // ordena da mais recente para mais antiga
+      const ordenado = [...movimentacoes].sort((a, b) => new Date(b.dataRegistro) - new Date(a.dataRegistro));
+      ordenado.forEach(m => {
+        const equip = equipamentos.find(e => e.id === m.equipId);
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${m.dataRegistro.split("T")[0] || "-"}</td>
+          <td>${equip ? equip.nome : "-"}</td>
+          <td>${m.colaborador || "-"}</td>
+          <td>
+            <span class="tag">
+              ${m.tipo === "emprestimo" ? "Empréstimo" : "Devolução"}
+            </span>
+          </td>
+          <td>${m.obs || "-"}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function atualizarTudo() {
+      atualizarDashboard();
+      renderTabelaEquip();
+      renderSelectEquipDisponivel();
+      renderTabelaEmprestados();
+      renderTabelaMovimentacoes();
+    }
+
+    // ------- AÇÕES -------
+    function handleCadastroEquipamento(event) {
+      event.preventDefault();
+      const nome = document.getElementById("equipNome").value.trim();
+      const serie = document.getElementById("equipSerie").value.trim();
+      const categoria = document.getElementById("equipCategoria").value.trim();
+      const local = document.getElementById("equipLocal").value.trim();
+
+      if (!nome || !serie) {
+        alert("Preencha nome e número de série.");
+        return;
+      }
+
+      const novo = {
+        id: "eq_" + Date.now(),
+        nome,
+        serie,
+        categoria,
+        local,
+        status: "disponivel"
+      };
+
+      equipamentos.push(novo);
+      salvarDados();
+      atualizarTudo();
+
+      document.getElementById("formEquip").reset();
+      alert("Equipamento cadastrado com sucesso!");
+    }
+
+    function handleRegistrarEmprestimo(event) {
+      event.preventDefault();
+      const equipId = document.getElementById("empEquip").value;
+      const colab = document.getElementById("empColab").value.trim();
+      const dataSaida = document.getElementById("empDataSaida").value;
+      const obs = document.getElementById("empObs").value.trim();
+
+      if (!equipId) {
+        alert("Selecione um equipamento.");
+        return;
+      }
+      if (!colab) {
+        alert("Informe o colaborador.");
+        return;
+      }
+
+      const equip = equipamentos.find(e => e.id === equipId);
+      if (!equip || equip.status !== "disponivel") {
+        alert("Equipamento não disponível.");
+        return;
+      }
+
+      const mov = {
+        id: "mv_" + Date.now(),
+        equipId,
+        colaborador: colab,
+        tipo: "emprestimo",
+        dataSaida: dataSaida || new Date().toISOString().slice(0,10),
+        dataDevolucao: null,
+        obs,
+        dataRegistro: new Date().toISOString()
+      };
+
+      movimentacoes.push(mov);
+      equip.status = "emprestado";
+      salvarDados();
+      atualizarTudo();
+
+      document.getElementById("formEmprestimo").reset();
+      alert("Empréstimo registrado!");
+    }
+
+    // chamada pelo botão
+    function registrarDevolucao(movId) {
+      const mov = movimentacoes.find(m => m.id === movId);
+      if (!mov || mov.dataDevolucao) return;
+
+      const equip = equipamentos.find(e => e.id === mov.equipId);
+      if (!equip) return;
+
+      // registra devolução
+      mov.dataDevolucao = new Date().toISOString().slice(0,10);
+      mov.dataRegistro = new Date().toISOString(); // atualiza para aparecer no topo
+      mov.tipo = "devolucao";
+
+      equip.status = "disponivel";
+      salvarDados();
+      atualizarTudo();
+      alert("Devolução registrada!");
+    }
+
+    // ------- ABAS -------
+    function configurarAbas() {
+      const tabs = document.querySelectorAll(".tab-btn");
+      const sections = document.querySelectorAll(".section");
+
+      tabs.forEach(btn => {
+        btn.addEventListener("click", () => {
+          const alvo = btn.dataset.tab;
+          tabs.forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          sections.forEach(sec => {
+            sec.classList.toggle("active", sec.id === alvo);
+          });
+        });
+      });
+    }
+
+    // ------- INICIALIZAÇÃO -------
+    document.addEventListener("DOMContentLoaded", () => {
+      carregarDados();
+      configurarAbas();
+      atualizarTudo();
+
+      document.getElementById("formEquip").addEventListener("submit", handleCadastroEquipamento);
+      document.getElementById("formEmprestimo").addEventListener("submit", handleRegistrarEmprestimo);
+    });
+  </script>
+</body>
+</html>
 
